@@ -1,6 +1,6 @@
 package com.poc.shoppingCartMicroservice.kafka;
 
-import com.poc.common.dto.CartCheckoutRequest;
+import com.poc.dto.CartCheckoutRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;

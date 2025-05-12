@@ -1,6 +1,6 @@
 package com.poc.shoppingCartMicroservice.config;
 
-import com.poc.common.dto.CartCheckoutRequest;
+import com.poc.dto.CartCheckoutRequest;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;

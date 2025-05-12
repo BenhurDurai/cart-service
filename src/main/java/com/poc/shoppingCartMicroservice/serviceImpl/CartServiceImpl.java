@@ -1,7 +1,7 @@
 package com.poc.shoppingCartMicroservice.serviceImpl;
 
-import com.poc.common.dto.CartCheckoutRequest;
-import com.poc.common.dto.CartItemDto;
+import com.poc.dto.CartCheckoutRequest;
+import com.poc.dto.CartItemDto;
 import com.poc.shoppingCartMicroservice.dto.*;
 import com.poc.shoppingCartMicroservice.exception.ProductNotFoundException;
 import com.poc.shoppingCartMicroservice.exception.ProductOutOfStockException;
@@ -49,11 +49,9 @@ public class CartServiceImpl implements CartService {
         httpHeaders.setBearerAuth(getCurrentRequestToken());
         HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
 
-        // Validate user and product existence
         validateUser(cartDto.getUsername(), entity);
         ProductResponse productResponse = validateProduct(cartDto.getProductName(), entity);
 
-        // Check if product already exists in user's cart
         Optional<Cart> existingCartOpt = cartRepository.findByUsername(cartDto.getUsername())
                 .stream()
                 .filter(c -> c.getProductName().equalsIgnoreCase(cartDto.getProductName()))
@@ -61,7 +59,6 @@ public class CartServiceImpl implements CartService {
 
         Cart cart;
         if (existingCartOpt.isPresent()) {
-            // Update quantity
             cart = existingCartOpt.get();
             int updatedQuantity = cart.getQuantity() + cartDto.getQuantity();
 
@@ -74,7 +71,6 @@ public class CartServiceImpl implements CartService {
             cart.setPrice(productResponse.getPrice()); // Update price if changed
             log.info("Updated existing cart item: {}", cart);
         } else {
-            // New cart item
             cart = new Cart();
             cart.setUsername(cartDto.getUsername());
             cart.setProductName(cartDto.getProductName());
@@ -117,7 +113,7 @@ public class CartServiceImpl implements CartService {
 
     @CircuitBreaker(name = "userService", fallbackMethod = "userServiceFallback")
     private void validateUser(String username, HttpEntity<String> entity) {
-        String userServiceUrl = "http://localhost:8080/api/users/" + username;
+        String userServiceUrl = "http://localhost:8080/api/users/getUser/" + username;
         ResponseEntity<User> userResponse = restTemplate.exchange(userServiceUrl, HttpMethod.GET, entity, User.class);
         if (userResponse.getBody() == null) {
             throw new UserNotFoundException("User not found: " + username);
@@ -170,7 +166,10 @@ public class CartServiceImpl implements CartService {
         checkoutRequest.setCartItems(cartItemDtos);
         checkoutRequest.setTotalPrice(totalPrice);
 
-        // 🔥 Send to Kafka after preparing
+        String token = getCurrentRequestToken();
+
+        checkoutRequest.setToken(token);
+
         cartEventProducer.sendOrder(checkoutRequest);
 
         log.info("Checkout cart prepared and sent to Kafka: {}", checkoutRequest);

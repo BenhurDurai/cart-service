@@ -1,7 +1,7 @@
 package com.poc.shoppingCartMicroservice.controller;
 
-//import com.poc.shoppingCartMicroservice.dto.CartCheckoutRequest;
-import com.poc.common.dto.CartCheckoutRequest;
+
+import com.poc.dto.CartCheckoutRequest;
 import com.poc.shoppingCartMicroservice.dto.CartDto;
 import com.poc.shoppingCartMicroservice.model.Cart;
 import com.poc.shoppingCartMicroservice.service.CartService;
